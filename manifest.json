@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "ClipboardImageSharing",
+  "version": "1.0",
+  "description": "Sharing ClipboardImage",
+  "permissions": [
+    "contextMenus",
+    "notifications",
+    "clipboardRead",
+    "clipboardWrite",
+    "activeTab",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

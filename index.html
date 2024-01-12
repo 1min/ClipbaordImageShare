@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script type="application/javascript">
+      let myIp;
+
+      function getIP(json) {
+        // document.write("My public IP address is: ", json.ip);
+        myIp = json.ip;
+      }
+    </script>
+    <!-- 공유 ip 받아오는곳 -->
+    <script
+      type="application/javascript"
+      src="https://api.ipify.org?format=jsonp&callback=getIP"
+    ></script>
+    <script>
+      window.addEventListener("DOMContentLoaded", function () {
+        document.querySelector("#test").addEventListener("click", async () => {
+          try {
+            // const permission = await navigator.permissions.query({
+            //   name: "clipboard-read",
+            // });
+
+            // permission allowed
+            // if (permission.state === "granted") {
+            const dataTransfer = await navigator.clipboard.read();
+
+            // get item from clipboard
+            for (const item of dataTransfer) {
+              const isImage = item.types.some((type) => type === "image/png");
+
+              if (!isImage) {
+                continue;
+              }
+
+              // get Blob from clipboardItem
+              const blob = await item.getType("image/png");
+
+              let reader = new FileReader();
+
+              reader.onload = function (event) {
+                let base64EndcodedArr = event.target.result.split(",");
+                let metaDataStr = base64EndcodedArr[0];
+                let encodedData = base64EndcodedArr[1];
+
+                fetch(
+                  "https://script.google.com/macros/s/AKfycbyjITeBrk_4bsGRy9jiczwB-KPoYwOZZxnsrr0hYJpxqPLOWEMjDBo96VsMLHssBwlN/exec",
+                  {
+                    method: "POST",
+                    body: JSON.stringify({
+                      metaData: metaDataStr,
+                      data: encodedData,
+                      ip: myIp,
+                    }),
+                  }
+                )
+                  .then((response) => response.json())
+                  .then((data) => {
+                    console.log("Response from Google Apps Script:", data);
+                  })
+                  .catch((error) => {
+                    console.error("Error calling Google Apps Script:", error);
+                  });
+              };
+
+              reader.readAsDataURL(blob);
+              break;
+            }
+            // } else {
+            // console.log("not allowed permission.");
+            // }
+          } catch (error) {
+            console.error("clipboard read error:", error);
+          }
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <button id="test">test button</button>
+  </body>
+</html>
